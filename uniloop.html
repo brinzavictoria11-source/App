@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>UniLoop — Group Activity</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131c;
+    --surface2: #1c1c2e;
+    --accent: #6c63ff;
+    --accent2: #ff6584;
+    --accent3: #43e97b;
+    --text: #f0f0ff;
+    --muted: #7b7b9a;
+    --border: rgba(108,99,255,0.2);
+    --glow: rgba(108,99,255,0.15);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem;
+    height: 60px;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .nav-links {
+    display: flex; gap: 0.5rem;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .nav-links a:hover, .nav-links a.active {
+    color: var(--text);
+    border-color: var(--border);
+    background: var(--glow);
+  }
+
+  /* ── SECTIONS ── */
+  section { display: none; padding-top: 60px; min-height: 100vh; }
+  section.visible { display: block; }
+  #app.visible { display: flex; flex-direction: column; align-items: center; }
+
+  /* ── APP PROTOTYPE ── */
+
+  /* Splash phone on app page */
+  .app-hero {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 3rem 1rem 1rem; gap: 2.5rem;
+    position: relative;
+  }
+
+  .app-hero-text { text-align: center; max-width: 480px; }
+
+  .badge {
+    display: inline-block;
+    background: rgba(108,99,255,0.15);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 0.35rem 1rem;
+    border-radius: 20px;
+    margin-bottom: 1.2rem;
+  }
+
+  .app-hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -2px;
+    margin-bottom: 0.8rem;
+  }
+
+  .app-hero h1 span {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .app-hero p {
+    color: var(--muted); font-size: 0.92rem; line-height: 1.65;
+    padding: 0.9rem 1.2rem;
+    background: rgba(255,101,132,0.06);
+    border: 1px solid rgba(255,101,132,0.2);
+    border-radius: 12px;
+  }
+
+  .app-hero p strong { color: var(--accent2); }
+
+  /* Splash phone */
+  .splash-phone-wrap {
+    position: relative; width: 200px;
+    animation: phoneFloat 4s ease-in-out infinite;
+  }
+
+  @keyframes phoneFloat {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .splash-phone {
+    width: 200px; height: 400px;
+    background: var(--surface);
+    border-radius: 32px;
+    border: 2px solid rgba(108,99,255,0.45);
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 40px 80px rgba(0,0,0,0.6),
+      0 0 60px rgba(108,99,255,0.12),
+      inset 0 0 0 1px rgba(255,255,255,0.04);
+  }
+
+  .splash-notch {
+    width: 64px; height: 20px;
+    background: var(--bg);
+    border-radius: 0 0 12px 12px;
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    z-index: 10;
+  }
+
+  .splash-screen {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: radial-gradient(ellipse 120% 80% at 50% 60%, rgba(108,99,255,0.2) 0%, transparent 70%);
+    gap: 14px;
+    position: relative;
+  }
+
+  .splash-logo-ring {
+    width: 70px; height: 70px; border-radius: 22px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 30px rgba(108,99,255,0.5), 0 0 60px rgba(108,99,255,0.2);
+    animation: logoGlow 3s ease-in-out infinite alternate;
+  }
+
+  @keyframes logoGlow {
+    0% { box-shadow: 0 0 20px rgba(108,99,255,0.4), 0 0 40px rgba(108,99,255,0.15); }
+    100% { box-shadow: 0 0 40px rgba(255,101,132,0.5), 0 0 80px rgba(255,101,132,0.2); }
+  }
+
+  .splash-logo-letter {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem; font-weight: 800; color: #fff;
+    letter-spacing: -1px;
+  }
+
+  .splash-wordmark {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    letter-spacing: -0.5px;
+  }
+
+  .splash-tagline {
+    font-size: 0.58rem; color: var(--muted); text-align: center;
+    letter-spacing: 0.5px; line-height: 1.5;
+    padding: 0 20px;
+  }
+
+  .splash-dots {
+    display: flex; gap: 5px; margin-top: 8px;
+  }
+
+  .splash-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--muted);
+    animation: splashDot 1.6s ease-in-out infinite;
+  }
+
+  .splash-dot:nth-child(1) { animation-delay: 0s; background: var(--accent); }
+  .splash-dot:nth-child(2) { animation-delay: 0.2s; }
+  .splash-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes splashDot {
+    0%,100% { transform: scale(1); opacity: 0.4; }
+    50% { transform: scale(1.5); opacity: 1; background: var(--accent); }
+  }
+
+  /* Glow ring around phone */
+  .splash-phone-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -20px;
+    border-radius: 50px;
+    background: radial-gradient(ellipse at center, rgba(108,99,255,0.12) 0%, transparent 70%);
+    z-index: -1;
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%,100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+  #app {
+    padding: 60px 1rem 4rem;
+  }
+
+  .section-header {
+    text-align: center; margin-bottom: 3rem;
+  }
+
+  .section-header h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 2.5rem; font-weight: 800;
+    letter-spacing: -1px;
+    margin-bottom: 0.5rem;
+  }
+
+  .section-header p { color: var(--muted); font-size: 1rem; }
+
+  .app-frame {
+    width: 380px;
+    max-width: 100%;
+    background: var(--surface);
+    border-radius: 40px;
+    border: 2px solid rgba(108,99,255,0.3);
+    overflow: hidden;
+    box-shadow: 0 60px 100px rgba(0,0,0,0.7), 0 0 80px rgba(108,99,255,0.08);
+    position: relative;
+  }
+
+  .app-status-bar {
+    background: var(--bg);
+    padding: 12px 24px 6px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.65rem; font-weight: 600; color: var(--muted);
+  }
+
+  .app-header {
+    padding: 12px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .app-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.3rem; font-weight: 800;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+
+  .app-icons { display: flex; gap: 12px; }
+  .icon-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; cursor: pointer;
+    border: 1px solid var(--border);
+  }
+
+  .app-tabs {
+    display: flex; border-bottom: 1px solid var(--border);
+    overflow-x: auto; scrollbar-width: none;
+  }
+
+  .app-tab {
+    flex: 1; padding: 10px 4px; text-align: center;
+    font-size: 0.7rem; font-weight: 600; color: var(--muted);
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: all 0.2s; white-space: nowrap;
+    min-width: 70px;
+  }
+
+  .app-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .app-content {
+    height: 480px; overflow-y: auto; scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  /* Feed tab */
+  .feed-post {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .post-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+  }
+
+  .av {
+    width: 36px; height: 36px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+  }
+
+  .post-meta { flex: 1; }
+  .post-name { font-size: 0.82rem; font-weight: 600; }
+  .post-info { font-size: 0.68rem; color: var(--muted); }
+
+  .post-cat {
+    font-size: 0.6rem; font-weight: 600; padding: 2px 8px; border-radius: 8px;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+
+  .cat-course { background: rgba(108,99,255,0.2); color: var(--accent); }
+  .cat-event { background: rgba(67,233,123,0.15); color: var(--accent3); }
+  .cat-meme { background: rgba(255,101,132,0.15); color: var(--accent2); }
+  .cat-market { background: rgba(255,193,7,0.15); color: #ffc107; }
+
+  .post-body { font-size: 0.8rem; color: var(--text); line-height: 1.5; margin-bottom: 10px; }
+
+  .post-image {
+    width: 100%; border-radius: 12px; height: 140px; object-fit: cover;
+    margin-bottom: 10px; background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 2rem;
+  }
+
+  .post-actions {
+    display: flex; gap: 16px; align-items: center;
+  }
+
+  .action { display: flex; align-items: center; gap: 4px; font-size: 0.72rem; color: var(--muted); cursor: pointer; transition: color 0.2s; }
+  .action:hover { color: var(--text); }
+  .action.liked { color: var(--accent2); }
+  .action span { font-size: 0.9rem; }
+
+  /* Events */
+  .event-card {
+    margin: 12px 16px;
+    background: var(--surface2);
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .event-card:hover { transform: translateY(-2px); border-color: var(--accent); }
+  .event-date-badge {
+    background: var(--accent);
+    color: #fff; border-radius: 8px; padding: 4px 10px;
+    font-size: 0.7rem; font-weight: 700; display: inline-block; margin-bottom: 8px;
+  }
+  .event-title { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+  .event-detail { font-size: 0.72rem; color: var(--muted); }
+  .event-footer { margin-top: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .attendees { display: flex; }
+  .att-av {
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid var(--surface);
+    margin-left: -6px; font-size: 0.55rem;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .att-av:first-child { margin-left: 0; }
+  .join-btn {
+    background: var(--accent); color: #fff;
+    border: none; padding: 5px 14px; border-radius: 20px;
+    font-size: 0.72rem; font-weight: 600; cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.2s;
+  }
+  .join-btn:hover { opacity: 0.85; }
+
+  /* Marketplace */
+  .market-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px 16px;
+  }
+  .market-item {
+    background: var(--surface2); border-radius: 14px; overflow: hidden;
+    border: 1px solid var(--border); cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .market-item:hover { transform: scale(1.02); }
+  .market-img {
+    height: 90px; background: var(--surface);
+    display: flex; align-items: center; justify-content: center; font-size: 1.8rem;
+  }
+  .market-info { padding: 8px 10px; }
+  .market-title { font-size: 0.72rem; font-weight: 600; margin-bottom: 2px; }
+  .market-price { font-size: 0.75rem; font-weight: 700; color: var(--accent3); }
+  .market-seller { font-size: 0.6rem; color: var(--muted); }
+
+  /* Bottom nav */
+  .app-bottom-nav {
+    display: flex; border-top: 1px solid var(--border);
+    background: var(--surface);
+  }
+  .bnav-item {
+    flex: 1; padding: 12px 0; text-align: center; cursor: pointer;
+    font-size: 0.6rem; color: var(--muted); transition: color 0.2s;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .bnav-item.active { color: var(--accent); }
+  .bnav-item span { font-size: 1.2rem; }
+
+  /* ── FEATURES ── */
+  #features { }
+
+  .features-intro {
+    text-align: center; margin-bottom: 1rem;
+    background: rgba(255,101,132,0.08); border: 1px solid rgba(255,101,132,0.25);
+    border-radius: 16px; padding: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .features-intro p {
+    font-size: 0.9rem; line-height: 1.6; color: var(--muted);
+  }
+
+  .features-intro strong { color: var(--accent2); }
+
+  .feature-item {
+    display: flex; gap: 2rem; margin-bottom: 3rem; align-items: flex-start;
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .feature-item.revealed { opacity: 1; transform: translateY(0); }
+
+  .feature-demo {
+    width: 180px; flex-shrink: 0;
+    background: var(--surface);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    height: 200px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; position: relative;
+  }
+
+  .feature-info { flex: 1; }
+
+  .feature-num {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 0.5rem;
+  }
+
+  .feature-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem; font-weight: 700; margin-bottom: 0.75rem;
+    letter-spacing: -0.5px;
+  }
+
+  .feature-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.65; }
+
+  .danger-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: rgba(255,101,132,0.12); border: 1px solid rgba(255,101,132,0.3);
+    color: var(--accent2); font-size: 0.68rem; font-weight: 600;
+    padding: 3px 10px; border-radius: 10px; margin-top: 0.75rem;
+  }
+
+  /* ANIMATIONS */
+  /* 1. Infinite scroll */
+  .anim-scroll { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 8px; }
+  .scroll-item {
+    height: 30px; background: var(--surface2); border-radius: 6px;
+    border: 1px solid var(--border);
+    animation: infiniteScroll 3s linear infinite;
+  }
+  @keyframes infiniteScroll {
+    0% { transform: translateY(0); opacity: 1; }
+    90% { transform: translateY(0); opacity: 1; }
+    95% { opacity: 0; }
+    96% { transform: translateY(-200px); opacity: 0; }
+    100% { transform: translateY(-200px); opacity: 0; }
+  }
+  .scroll-item:nth-child(1) { animation-delay: 0s; }
+  .scroll-item:nth-child(2) { animation-delay: 0.3s; }
+  .scroll-item:nth-child(3) { animation-delay: 0.6s; }
+  .scroll-item:nth-child(4) { animation-delay: 0.9s; }
+  .new-content {
+    position: absolute; bottom: 0; left: 0; right: 0; padding: 6px 8px;
+  }
+  .new-item {
+    height: 30px; background: rgba(108,99,255,0.15); border-radius: 6px;
+    border: 1px solid var(--accent);
+    animation: fadeInUp 3s ease infinite;
+  }
+  .new-item:nth-child(2) { animation-delay: 1s; }
+  @keyframes fadeInUp {
+    0%, 50% { opacity: 0; transform: translateY(20px); }
+    70%, 90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; }
+  }
+
+  /* 2. Pull to refresh */
+  .anim-ptr { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 12px; width: 100%; }
+  .ptr-arrow {
+    font-size: 1.5rem;
+    animation: pullDown 2.5s ease-in-out infinite;
+    margin-bottom: 6px;
+  }
+  @keyframes pullDown {
+    0% { transform: translateY(-20px); opacity: 0; }
+    30% { transform: translateY(10px); opacity: 1; }
+    55% { transform: translateY(10px) rotate(180deg); opacity: 1; }
+    70% { transform: translateY(10px) rotate(360deg); opacity: 1; }
+    80% { transform: translateY(10px); opacity: 0; }
+    100% { transform: translateY(-20px); opacity: 0; }
+  }
+  .ptr-text { font-size: 0.6rem; color: var(--muted); margin-bottom: 12px; animation: ptrText 2.5s ease-in-out infinite; }
+  @keyframes ptrText {
+    0%,20% { opacity: 0; }
+    30%,70% { opacity: 1; }
+    80%,100% { opacity: 0; }
+  }
+  .ptr-cards { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 0 10px; }
+  .ptr-card { height: 32px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border); }
+  .ptr-card.new-card {
+    background: rgba(67,233,123,0.1); border-color: var(--accent3);
+    animation: newCard 2.5s ease-in-out infinite;
+    height: 0; overflow: hidden;
+  }
+  @keyframes newCard {
+    0%,55% { height: 0; opacity: 0; }
+    70%,90% { height: 32px; opacity: 1; }
+    100% { height: 0; opacity: 0; }
+  }
+
+  /* 3. Streaks */
+  .anim-streak { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; }
+  .streak-fire {
+    font-size: 3rem;
+    animation: fireGlow 1.5s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 10px rgba(255,150,0,0.7));
+  }
+  @keyframes fireGlow {
+    0% { transform: scale(1) rotate(-3deg); filter: drop-shadow(0 0 8px rgba(255,150,0,0.5)); }
+    100% { transform: scale(1.1) rotate(3deg); filter: drop-shadow(0 0 18px rgba(255,150,0,0.9)); }
+  }
+  .streak-count {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.8rem; font-weight: 800; color: #ff9800;
+    animation: countPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes countPulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  .streak-label { font-size: 0.65rem; color: var(--muted); font-weight: 600; letter-spacing: 1px; }
+  .streak-dots { display: flex; gap: 4px; margin-top: 4px; }
+  .s-dot {
+    width: 10px; height: 10px; border-radius: 50%; background: #ff9800;
+    animation: dotLight 3s ease-in-out infinite;
+  }
+  .s-dot:nth-child(1) { animation-delay: 0s; }
+  .s-dot:nth-child(2) { animation-delay: 0.2s; }
+  .s-dot:nth-child(3) { animation-delay: 0.4s; }
+  .s-dot:nth-child(4) { animation-delay: 0.6s; }
+  .s-dot:nth-child(5) { animation-delay: 0.8s; }
+  .s-dot.off { background: var(--surface2); }
+  @keyframes dotLight {
+    0%,100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.3); opacity: 1; }
+  }
+
+  /* 4. Like counts */
+  .anim-likes { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+  .like-bubble {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface2); border-radius: 20px; padding: 10px 18px;
+    border: 1px solid var(--border);
+    animation: likePulse 2s ease-in-out infinite;
+    cursor: pointer;
+  }
+  @keyframes likePulse {
+    0%,100% { transform: scale(1); border-color: var(--border); }
+    50% { transform: scale(1.05); border-color: var(--accent2); }
+  }
+  .like-heart {
+    font-size: 1.3rem;
+    animation: heartBeat 2s ease-in-out infinite;
+  }
+  @keyframes heartBeat {
+    0%,100% { transform: scale(1); }
+    25% { transform: scale(1.3); }
+    40% { transform: scale(1); }
+    55% { transform: scale(1.2); }
+    70% { transform: scale(1); }
+  }
+  .like-num {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.2rem; font-weight: 800;
+    color: var(--accent2);
+    animation: numFlicker 2s ease-in-out infinite;
+  }
+  @keyframes numFlicker {
+    0%,45% { content: "142"; }
+    50% { transform: translateY(-4px); opacity: 0; }
+    55% { transform: translateY(4px); opacity: 0; }
+    60%,100% { transform: translateY(0); opacity: 1; }
+  }
+  .floating-hearts { position: absolute; pointer-events: none; }
+  .fh {
+    position: absolute; font-size: 0.9rem;
+    animation: floatUp 2s ease-out infinite;
+    opacity: 0;
+  }
+  .fh:nth-child(1) { left: 20%; animation-delay: 0s; }
+  .fh:nth-child(2) { left: 50%; animation-delay: 0.4s; }
+  .fh:nth-child(3) { left: 75%; animation-delay: 0.8s; }
+  @keyframes floatUp {
+    0% { transform: translateY(20px); opacity: 1; }
+    100% { transform: translateY(-60px); opacity: 0; }
+  }
+
+  /* 5. Personalized feed */
+  .anim-algo { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; gap: 6px; }
+  .algo-row { display: flex; gap: 5px; align-items: center; }
+  .algo-chip {
+    font-size: 0.55rem; font-weight: 600; padding: 3px 8px; border-radius: 8px;
+    animation: chipFocus 4s ease-in-out infinite;
+  }
+  .algo-chip.c1 { background: rgba(108,99,255,0.3); color: var(--accent); animation-delay: 0.2s; }
+  .algo-chip.c2 { background: rgba(255,101,132,0.2); color: var(--accent2); animation-delay: 0.6s; }
+  .algo-chip.c3 { background: rgba(67,233,123,0.15); color: var(--accent3); animation-delay: 1s; }
+  .algo-chip.c4 { background: rgba(255,193,7,0.15); color: #ffc107; animation-delay: 1.4s; }
+  @keyframes chipFocus {
+    0%,80%,100% { transform: scale(1); opacity: 0.6; }
+    40% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 12px currentColor; }
+  }
+  .algo-arrow { font-size: 1.2rem; animation: arrowPulse 2s ease-in-out infinite; }
+  @keyframes arrowPulse {
+    0%,100% { transform: scale(1) translateX(0); opacity: 0.5; }
+    50% { transform: scale(1.2) translateX(4px); opacity: 1; }
+  }
+  .algo-result {
+    width: 100%; background: var(--surface2); border-radius: 10px; padding: 8px 10px;
+    border: 1px solid var(--accent); display: flex; flex-direction: column; gap: 3px;
+    animation: resultGlow 2s ease-in-out infinite;
+  }
+  @keyframes resultGlow {
+    0%,100% { box-shadow: none; }
+    50% { box-shadow: 0 0 16px rgba(108,99,255,0.3); }
+  }
+  .algo-result-label { font-size: 0.52rem; color: var(--accent); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .algo-result-text { font-size: 0.6rem; color: var(--muted); }
+
+  /* 6. Notifications */
+  .anim-notif { display: flex; flex-direction: column; gap: 8px; padding: 10px; width: 100%; }
+  .notif-item {
+    display: flex; align-items: flex-start; gap: 8px;
+    background: var(--surface2); border-radius: 10px; padding: 8px 10px;
+    border: 1px solid var(--border);
+    opacity: 0; transform: translateX(20px);
+    animation: notifSlide 5s ease-in-out infinite;
+  }
+  .notif-item:nth-child(1) { animation-delay: 0s; }
+  .notif-item:nth-child(2) { animation-delay: 1.5s; }
+  .notif-item:nth-child(3) { animation-delay: 3s; }
+  @keyframes notifSlide {
+    0% { opacity: 0; transform: translateX(20px); }
+    15%,60% { opacity: 1; transform: translateX(0); }
+    75%,100% { opacity: 0; transform: translateX(-10px); }
+  }
+  .notif-icon { font-size: 1rem; flex-shrink: 0; }
+  .notif-text { font-size: 0.6rem; color: var(--muted); line-height: 1.4; }
+  .notif-text strong { color: var(--text); font-weight: 600; }
+  .notif-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+    flex-shrink: 0; margin-top: 3px;
+    animation: dotBlink 1s ease-in-out infinite;
+  }
+  @keyframes dotBlink {
+    0%,100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* 7. Autoplay */
+  .anim-autoplay {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; padding: 10px; width: 100%;
+  }
+  .video-thumb {
+    width: 100%; height: 80px; background: var(--surface2); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden; border: 1px solid var(--border);
+  }
+  .play-icon { font-size: 2rem; opacity: 0.7; }
+  .progress-bar {
+    position: absolute; bottom: 0; left: 0; height: 3px;
+    background: var(--accent2);
+    animation: progressFill 3s ease-in-out infinite;
+  }
+  @keyframes progressFill {
+    0% { width: 0%; }
+    80% { width: 100%; }
+    100% { width: 100%; }
+  }
+  .autoplay-label {
+    font-size: 0.6rem; color: var(--accent2); font-weight: 600;
+    animation: labelFade 3s ease-in-out infinite;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  @keyframes labelFade {
+    0%,50% { opacity: 0; }
+    60%,90% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .next-thumb {
+    width: 100%; height: 50px; background: rgba(255,101,132,0.1); border-radius: 10px;
+    border: 1px dashed var(--accent2); display: flex; align-items: center; justify-content: center;
+    font-size: 0.65rem; color: var(--accent2);
+    animation: nextFade 3s ease-in-out infinite;
+    opacity: 0;
+  }
+  @keyframes nextFade {
+    0%,55% { opacity: 0; }
+    70%,90% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* 8. Read receipts / typing */
+  .anim-typing {
+    display: flex; flex-direction: column; gap: 8px; padding: 10px; width: 100%;
+  }
+  .msg-bubble {
+    max-width: 75%; padding: 6px 10px; border-radius: 12px; font-size: 0.6rem; line-height: 1.4;
+  }
+  .msg-bubble.sent {
+    background: var(--accent); color: #fff; align-self: flex-end; border-radius: 12px 12px 4px 12px;
+    margin-left: auto;
+  }
+  .msg-bubble.recv {
+    background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+    border-radius: 12px 12px 12px 4px;
+  }
+  .read-receipt {
+    font-size: 0.5rem; color: var(--accent3); text-align: right; margin-top: -4px;
+    animation: receiptFade 3s ease-in-out infinite;
+  }
+  @keyframes receiptFade {
+    0%,30% { opacity: 0; }
+    50%,90% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+  .typing-indicator {
+    display: flex; align-items: center; gap: 6px; padding: 4px 0;
+  }
+  .typing-dots { display: flex; gap: 3px; }
+  .t-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--muted);
+    animation: typingBounce 1.2s ease-in-out infinite;
+  }
+  .t-dot:nth-child(2) { animation-delay: 0.2s; }
+  .t-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes typingBounce {
+    0%,100% { transform: translateY(0); opacity: 0.4; }
+    50% { transform: translateY(-4px); opacity: 1; }
+  }
+  .typing-label { font-size: 0.55rem; color: var(--muted); font-style: italic; }
+
+  /* ── THEORIES ── */
+  #theories { }
+
+  .theory-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2rem 2.5rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.3s;
+  }
+
+  .theory-card:hover { border-color: var(--accent); }
+
+  .theory-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+
+  .theory-card:nth-child(3)::before { background: linear-gradient(90deg, var(--accent2), var(--accent3)); }
+  .theory-card:nth-child(4)::before { background: linear-gradient(90deg, var(--accent3), var(--accent)); }
+  .theory-card:nth-child(5)::before { background: linear-gradient(90deg, #ffc107, var(--accent2)); }
+
+  .theory-number {
+    font-family: 'Syne', sans-serif;
+    font-size: 3rem; font-weight: 800;
+    color: var(--border);
+    position: absolute; top: 1rem; right: 1.5rem;
+    line-height: 1;
+  }
+
+  .theory-label {
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 0.5rem;
+  }
+
+  .theory-card:nth-child(3) .theory-label { color: var(--accent2); }
+  .theory-card:nth-child(4) .theory-label { color: var(--accent3); }
+  .theory-card:nth-child(5) .theory-label { color: #ffc107; }
+
+  .theory-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.5rem; font-weight: 700;
+    margin-bottom: 1rem; letter-spacing: -0.5px;
+    max-width: 80%;
+  }
+
+  .theory-body {
+    font-size: 0.88rem; color: var(--muted); line-height: 1.75;
+  }
+
+  .theory-body strong { color: var(--text); font-weight: 600; }
+
+  .theory-example {
+    margin-top: 1rem; padding: 0.75rem 1rem;
+    background: var(--surface2); border-radius: 10px;
+    border-left: 3px solid var(--accent);
+    font-size: 0.8rem; color: var(--muted); line-height: 1.6;
+    font-style: italic;
+  }
+
+  .theory-card:nth-child(3) .theory-example { border-left-color: var(--accent2); }
+  .theory-card:nth-child(4) .theory-example { border-left-color: var(--accent3); }
+  .theory-card:nth-child(5) .theory-example { border-left-color: #ffc107; }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .feature-item { flex-direction: column; }
+    .feature-demo { width: 100%; }
+    .theory-card { padding: 1.5rem; }
+    .theory-title { font-size: 1.2rem; max-width: 100%; }
+    .theory-number { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">UniLoop</div>
+  <div class="nav-links">
+    <a href="javascript:void(0)" onclick="show('app')" class="active" id="nav-app">App</a>
+    <a href="javascript:void(0)" onclick="show('features')" id="nav-features">Features</a>
+    <a href="javascript:void(0)" onclick="show('theories')" id="nav-theories">Theories</a>
+  </div>
+</nav>
+
+<!-- ══════════ APP PROTOTYPE ══════════ -->
+<section id="app" class="visible">
+  <div class="app-hero">
+    <div class="app-hero-text">
+      <div class="badge">Group Activity — Tilburg University</div>
+      <h1>Welcome to<br><span>UniLoop</span></h1>
+      <p>🎯 <strong>Your mission:</strong> You are the product team of UniLoop. Your investors want daily engagement to double in 6 months. Choose features that will keep students on the app longer.</p>
+    </div>
+    <div class="splash-phone-wrap">
+      <div class="splash-phone">
+        <div class="splash-notch"></div>
+        <div class="splash-screen">
+          <div class="splash-logo-ring">
+            <span class="splash-logo-letter">UL</span>
+          </div>
+          <div class="splash-wordmark">UniLoop</div>
+          <div class="splash-tagline">Course chats · Events<br>Memes · Marketplace</div>
+          <div class="splash-dots">
+            <div class="splash-dot"></div>
+            <div class="splash-dot"></div>
+            <div class="splash-dot"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size:0.72rem; color:var(--muted); letter-spacing:2px; text-transform:uppercase; font-weight:600; text-align:center; margin-bottom:0.75rem;">↓ Prototype</p>
+
+  <div class="app-frame">
+    <div class="app-status-bar">
+      <span>9:41</span><span>🔋 ◾◾◾</span>
+    </div>
+    <div class="app-header">
+      <div class="app-title">UniLoop</div>
+      <div class="app-icons">
+        <div class="icon-btn">🔍</div>
+        <div class="icon-btn">🔔</div>
+      </div>
+    </div>
+    <div class="app-tabs" id="appTabs">
+      <div class="app-tab active" onclick="switchTab('feed')">📰 Feed</div>
+      <div class="app-tab" onclick="switchTab('events')">🎉 Events</div>
+      <div class="app-tab" onclick="switchTab('memes')">😂 Memes</div>
+      <div class="app-tab" onclick="switchTab('market')">🛒 Market</div>
+    </div>
+    <div class="app-content" id="appContent">
+      <!-- feed content injected by JS -->
+    </div>
+    <div class="app-bottom-nav">
+      <div class="bnav-item active"><span>🏠</span>Home</div>
+      <div class="bnav-item"><span>💬</span>Chats</div>
+      <div class="bnav-item"><span>➕</span>Post</div>
+      <div class="bnav-item"><span>👥</span>Groups</div>
+      <div class="bnav-item"><span>👤</span>Me</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FEATURES ══════════ -->
+<section id="features">
+  <div style="max-width:900px; margin:0 auto; padding: 2rem 1.5rem 4rem;">
+  <div class="section-header">
+    <h2>Engagement Features</h2>
+    <p>8 design patterns to consider for your product roadmap</p>
+  </div>
+
+  <!-- 1 -->
+  <div class="feature-item">
+    <div class="feature-demo">
+      <div class="anim-scroll">
+        <div class="scroll-item"></div>
+        <div class="scroll-item"></div>
+        <div class="scroll-item"></div>
+        <div class="scroll-item"></div>
+      </div>
+      <div class="new-content">
+        <div class="new-item"></div>
+        <div class="new-item" style="margin-top:5px"></div>
+      </div>
+    </div>
+    <div class="feature-info">
+      <div class="feature-num">Feature 01</div>
+      <div class="feature-title">Infinite Scroll</div>
+      <div class="feature-desc">Content loads automatically as users reach the bottom — there's no natural stopping point. Students never see a "you've reached the end" message. The app simply keeps going.</div>
+      <div class="danger-tag">⚡ Eliminates stopping cues</div>
+    </div>
+  </div>
+
+  <!-- 2 -->
+  <div class="feature-item">
+    <div class="feature-demo">
+      <div class="anim-ptr">
+        <div class="ptr-arrow">↓</div>
+        <div class="ptr-text">Pull to refresh</div>
+        <div class="ptr-cards">
+          <div class="ptr-card new-card"></div>
+          <div class="ptr-card"></div>
+          <div class="ptr-card"></div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-info">
+      <div class="feature-num">Feature 02</div>
+      <div class="feature-title">Pull-to-Refresh</div>
+      <div class="feature-desc">Users swipe down to load new content. The gesture is physically similar to pulling a slot machine lever — each pull might reveal something new or exciting.</div>
+      <div class="danger-tag">🎰 Slot machine mechanic</div>
+    </div>
+  </div>
+
+  <!-- 3 -->
+  <div class="feature-item">
+    <div class="feature-demo">
+      <div class="anim-streak">
+        <div class="streak-fire">🔥</div>
+        <div class="streak-count">14</div>
+        <div class="streak-label">DAY STREAK</div>
+        <div class="streak-dots">
+          <div class="s-dot"></div><div class="s-dot"></div><div class="s-dot"></div>
+          <div class="s-dot"></div><div class="s-dot"></div>
+          <div class="s-dot off"></div><div class="s-dot off"></div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-info">
+      <div class="feature-num">Feature 03</div>
+      <div class="feature-title">Streaks</div>
+      <div class="feature-desc">A counter that tracks consecutive days of activity. Once a streak is established, the fear of breaking it drives daily returns — even when there's no real reason to open the app.</div>
+      <div class="danger-tag">😰 Loss aversion trigger</div>
+    </div>
+  </div>
+
+  <!-- 4 -->
+  <div class="feature-item">
+    <div class="feature-demo" style="position:relative; overflow:visible;">
+      <div class="anim-likes">
+        <div class="like-bubble">
+          <span class="like-heart">❤️</span>
+          <span class="like-num" id="likeNum">142</span>
+        </div>
+        <div style="font-size:0.6rem; color:var(--muted);">Sophie, Alex and 140 others</div>
+      </div>
+      <div class="floating-hearts">
+        <div class="fh">❤️</div>
+        <div class="fh">💖</div>
+        <div class="fh">❤️</div>
+      </div>
+    </div>
+    <div class="feature-info">
+      <div class="feature-num">Feature 04</div>
+      <div class="feature-title">Visible Like Counts</div>
+      <div class="feature-desc">Displaying public like counts turns social approval into a quantifiable metric. Users post more to chase higher numbers, and check back repeatedly to watch their count rise.</div>
+      <div class="danger-tag">👁️ Social validation loop</div>
+    </div>
+  </div>
+
+  <!-- 5 -->
+  <div class="feature-item">
+    <div class="feature-demo">
+      <div class="anim-algo">
+        <div class="algo-row">
+          <div class="algo-chip c1">📚 Law</div>
+          <div class="algo-chip c2">🎉 Events</div>
+        </div>
+        <div class="algo-row">
+          <div class="algo-chip c3">😂 Memes</div>
+          <div class="algo-chip c4">🛒 Deals</div>
+        </div>
+        <div class="algo-arrow">↓</div>
+        <div class="algo-result">
+          <div class="algo-result-label">✨ Just for you</div>
+          <div class="algo-result-text">Tailored from your activity...</div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-info">
+      <div class="feature-num">Feature 05</div>
+      <div class="feature-title">Personalized Feed</div>
+      <div class="feature-desc">The algorithm watches what you linger on, skip, and interact with — then reshapes your feed in real time to show more of what keeps you scrolling. The platform becomes more potent the more you use it.</div>
+      <div class="danger-tag">🧠 Adaptive manipulation</div>
+    </div>
+  </div>
+
+  <!-- 6 -->
+  <div class="feature-item">
+    <div class="feature-demo">
+      <div class="anim-notif">
+        <div class="notif-item">
+          <div class="notif-icon">🔔</div>
+          <div class="notif-text"><strong>Lisa</strong> liked your post about the exam</div>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-icon">💬</div>
+          <div class="notif-text"><strong>3 people</strong> commented on your meme</div>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-icon">📢</div>
+          <div class="notif-text">You haven't visited UniLoop in <strong>2 hours</strong></div>
+          <div class="notif-dot"></div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-info">
+      <div class="feature-num">Feature 06</div>
+      <div class="feature-title">Re-engagement Notifications</div>
+      <div class="feature-desc">Push notifications that pull users back when they've been away — sometimes triggered by social actions, sometimes by inactivity timers. Designed to interrupt attention and redirect it to the app.</div>
+      <div class="danger-tag">📲 Attention interruption</div>
+    </div>
+  </div>
+
+  <!-- 7 -->
+  <div class="feature-item">
+    <div class="feature-demo">
+      <div class="anim-autoplay">
+        <div class="video-thumb">
+          <span class="play-icon">▶️</span>
+          <div class="progress-bar"></div>
+        </div>
+        <div class="autoplay-label">▶ Autoplaying next...</div>
+        <div class="next-thumb">Next video loading</div>
+      </div>
+    </div>
+    <div class="feature-info">
+      <div class="feature-num">Feature 07</div>
+      <div class="feature-title">Autoplay Previews</div>
+      <div class="feature-desc">Videos and previews start playing without user input. By making content active by default, the app bypasses the conscious decision to engage. Users are watching before they've chosen to watch.</div>
+      <div class="danger-tag">▶️ Bypasses consent to engage</div>
+    </div>
+  </div>
+
+  <!-- 8 -->
+  <div class="feature-item">
+    <div class="feature-demo">
+      <div class="anim-typing">
+        <div class="msg-bubble recv">Hey, did you see the lecture slides?</div>
+        <div class="msg-bubble sent">Yeah just posted them in the group 👍</div>
+        <div class="read-receipt">✓✓ Seen 09:43</div>
+        <div class="typing-indicator">
+          <div class="typing-dots">
+            <div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div>
+          </div>
+          <div class="typing-label">Lisa is typing...</div>
+        </div>
+      </div>
+    </div>
+    <div class="feature-info">
+      <div class="feature-num">Feature 08</div>
+      <div class="feature-title">Read Receipts & Typing Indicators</div>
+      <div class="feature-desc">Showing when messages are read and when someone is typing creates social pressure to respond immediately. Users stay in the app waiting for replies, increasing session length.</div>
+      <div class="danger-tag">👀 Social pressure to respond</div>
+    </div>
+  </div><!-- end feature-item 8 -->
+
+  </div><!-- end max-width wrapper -->
+</section>
+
+<!-- ══════════ THEORIES ══════════ -->
+<section id="theories">
+  <div style="max-width:820px; margin:0 auto; padding: 2rem 1.5rem 4rem;">
+  <div class="section-header">
+    <h2>Design Theories</h2>
+    <p>The psychological frameworks behind persuasive technology</p>
+  </div>
+
+  <div class="theory-card">
+    <div class="theory-number">01</div>
+    <div class="theory-label">Behavioral Psychology</div>
+    <div class="theory-title">Variable Rewards<br><span style="font-weight:400; font-size:1rem">(Intermittent Variable Rewards)</span></div>
+    <div class="theory-body">
+      The most effective way to maintain a behavior is not through consistent, predictable rewards, but through <strong>rewards that vary in frequency or magnitude</strong>. On social media, this is illustrated by Twitter's artificial loading delay and Pinterest's partially visible images that compel users to scroll further.
+      <div class="theory-example">The "pull-to-refresh" gesture is explicitly compared to the motion of a slot machine lever — each pull might return something new and exciting, or nothing at all. The uncertainty is the hook.</div>
+    </div>
+  </div>
+
+  <div class="theory-card">
+    <div class="theory-number">02</div>
+    <div class="theory-label">UX Design</div>
+    <div class="theory-title">Infinite Scroll</div>
+    <div class="theory-body">
+      Before infinite scroll existed, reaching the bottom of a webpage served as a <strong>natural stopping cue</strong>, prompting the user to consciously decide whether to continue. Infinite scroll removes this entirely — as the user scrolls, the platform automatically loads new content, <strong>eliminating any moment of reflection</strong> about whether to keep going.
+      <div class="theory-example">The design pattern does not just make content longer — it removes the architecture of stopping. There is no "done." The app is designed so that there is never a natural moment to put your phone down.</div>
+    </div>
+  </div>
+
+  <div class="theory-card">
+    <div class="theory-number">03</div>
+    <div class="theory-label">Social Psychology</div>
+    <div class="theory-title">Social Validation & Reciprocity</div>
+    <div class="theory-body">
+      Platforms exploit users' psychological desire for <strong>social approval and reciprocity</strong>. Facebook's "like" button is the flagship example, described as dramatically changing the psychology of platform use. Snapchat's "snapstreaks" — a counter of consecutive days two users have exchanged snaps — similarly exploits this, with teens reportedly feeling <strong>intense pressure to maintain their streaks</strong>.
+      <div class="theory-example">Streaks don't reward positive behavior — they punish its absence. A broken streak feels like a loss, which is psychologically more powerful than the gain of maintaining it. This is loss aversion weaponized as a product feature.</div>
+    </div>
+  </div>
+
+  <div class="theory-card">
+    <div class="theory-number">04</div>
+    <div class="theory-label">Machine Learning</div>
+    <div class="theory-title">Adaptive Algorithms</div>
+    <div class="theory-body">
+      Algorithms continuously monitor how long specific content keeps each individual user engaged, then use that data to <strong>adjust what content is shown in real time</strong>, making the platform progressively more addictive for that specific person. Unlike substances such as cigarettes, which don't change themselves per user, the platform itself becomes <strong>more potent the more a person uses it</strong> — creating a feedback loop where user behavior is turned against the user.
+      <div class="theory-example">Every second you spend on the app is training data. The algorithm learns your emotional triggers, your blind spots, your compulsions — and optimizes content delivery around them. It is a system that becomes better at holding your attention the more you give it.</div>
+    </div>
+  </div><!-- end theory card 4 -->
+  </div><!-- end max-width wrapper -->
+</section>
+
+<script>
+  // ── Navigation ──
+  function show(id) {
+    document.querySelectorAll('section').forEach(s => s.classList.remove('visible'));
+    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+    document.getElementById(id).classList.add('visible');
+    document.getElementById('nav-' + id).classList.add('active');
+    window.scrollTo(0,0);
+    if (id === 'features') initFeatureObserver();
+  }
+
+  // ── App Tabs ──
+  const tabContent = {
+    feed: `
+      <div class="feed-post">
+        <div class="post-header">
+          <div class="av" style="background:rgba(108,99,255,0.25);color:var(--accent)">TK</div>
+          <div class="post-meta">
+            <div class="post-name">Tim Klaassen</div>
+            <div class="post-info">Law II · 2 min ago</div>
+          </div>
+          <span class="post-cat cat-course">Course</span>
+        </div>
+        <div class="post-body">Anyone have the notes from Monday's Constitutional Law lecture? The train strike got me again 😭 Will swap for my Civil Law summary!</div>
+        <div class="post-actions">
+          <div class="action liked"><span>❤️</span> 24</div>
+          <div class="action"><span>💬</span> 8 replies</div>
+          <div class="action"><span>🔗</span> Share</div>
+        </div>
+      </div>
+      <div class="feed-post">
+        <div class="post-header">
+          <div class="av" style="background:rgba(67,233,123,0.2);color:var(--accent3)">SB</div>
+          <div class="post-meta">
+            <div class="post-name">Sofia Brouwers</div>
+            <div class="post-info">Events · 15 min ago</div>
+          </div>
+          <span class="post-cat cat-event">Event</span>
+        </div>
+        <div class="post-body">🍺 Tilburg Borrel this FRIDAY at Café Blend — first 50 students drink free. Show this post at the door. Bring your student card!</div>
+        <div class="post-image">🍺🎉</div>
+        <div class="post-actions">
+          <div class="action"><span>🔥</span> 91</div>
+          <div class="action"><span>💬</span> 33</div>
+          <div class="action"><span>📅</span> RSVP</div>
+        </div>
+      </div>
+      <div class="feed-post">
+        <div class="post-header">
+          <div class="av" style="background:rgba(255,101,132,0.2);color:var(--accent2)">😂</div>
+          <div class="post-meta">
+            <div class="post-name">Anonymous</div>
+            <div class="post-info">Memes · 1h ago</div>
+          </div>
+          <span class="post-cat cat-meme">Meme</span>
+        </div>
+        <div class="post-body">When the prof says "this won't be on the exam" but includes it in the very first question 💀</div>
+        <div class="post-actions">
+          <div class="action"><span>😂</span> 204</div>
+          <div class="action"><span>💬</span> 47</div>
+          <div class="action"><span>🔗</span> Share</div>
+        </div>
+      </div>
+      <div class="feed-post">
+        <div class="post-header">
+          <div class="av" style="background:rgba(255,193,7,0.2);color:#ffc107">MR</div>
+          <div class="post-meta">
+            <div class="post-name">Max Reijs</div>
+            <div class="post-info">Marketplace · 2h ago</div>
+          </div>
+          <span class="post-cat cat-market">Market</span>
+        </div>
+        <div class="post-body">📚 Selling: Principles of Economics 8th ed. — good condition, some highlights. €18 or best offer. DM me!</div>
+        <div class="post-actions">
+          <div class="action"><span>👍</span> 5</div>
+          <div class="action"><span>💬</span> 3</div>
+          <div class="action"><span>✉️</span> DM</div>
+        </div>
+      </div>`,
+
+    events: `
+      <div style="padding: 12px 16px 0;">
+        <div style="font-size:0.75rem; color:var(--muted); font-weight:600; letter-spacing:1px; text-transform:uppercase; margin-bottom:8px;">This Week</div>
+      </div>
+      <div class="event-card">
+        <div class="event-date-badge">FRI 11 APR</div>
+        <div class="event-title">Tilburg Borrel @ Café Blend</div>
+        <div class="event-detail">📍 Heuvelstraat 64 · 🕗 21:00 · Free entry</div>
+        <div class="event-footer">
+          <div class="attendees">
+            <div class="att-av" style="background:#6c63ff">S</div>
+            <div class="att-av" style="background:#ff6584">T</div>
+            <div class="att-av" style="background:#43e97b">M</div>
+            <div class="att-av" style="background:#ffc107;font-size:0.5rem">+89</div>
+          </div>
+          <button class="join-btn">Join →</button>
+        </div>
+      </div>
+      <div class="event-card">
+        <div class="event-date-badge" style="background:var(--accent3)">SAT 12 APR</div>
+        <div class="event-title">Study Café: Finals Prep</div>
+        <div class="event-detail">📍 University Library · 🕙 10:00–18:00 · Free</div>
+        <div class="event-footer">
+          <div class="attendees">
+            <div class="att-av" style="background:#43e97b">L</div>
+            <div class="att-av" style="background:#6c63ff">R</div>
+            <div class="att-av" style="background:#ff6584;font-size:0.5rem">+34</div>
+          </div>
+          <button class="join-btn" style="background:var(--accent3)">Join →</button>
+        </div>
+      </div>
+      <div class="event-card">
+        <div class="event-date-badge" style="background:#ffc107; color:#000">MON 14 APR</div>
+        <div class="event-title">Career Fair: Business & Law</div>
+        <div class="event-detail">📍 Cobbenhagen Building · 🕚 11:00–16:00</div>
+        <div class="event-footer">
+          <div class="attendees">
+            <div class="att-av" style="background:#ffc107;color:#000">A</div>
+            <div class="att-av" style="background:#6c63ff">P</div>
+            <div class="att-av" style="background:#ff6584;font-size:0.5rem">+201</div>
+          </div>
+          <button class="join-btn" style="background:#ffc107; color:#000">Join →</button>
+        </div>
+      </div>`,
+
+    memes: `
+      <div class="feed-post">
+        <div class="post-header">
+          <div class="av" style="background:rgba(255,101,132,0.2);color:var(--accent2)">😂</div>
+          <div class="post-meta"><div class="post-name">Anonymous</div><div class="post-info">1h ago · 🔥 Trending</div></div>
+          <span class="post-cat cat-meme">Meme</span>
+        </div>
+        <div class="post-body">When the prof says "this won't be on the exam" 🎓💀</div>
+        <div class="post-actions"><div class="action liked"><span>😂</span> 204</div><div class="action"><span>💬</span> 47</div><div class="action"><span>🔗</span></div></div>
+      </div>
+      <div class="feed-post">
+        <div class="post-header">
+          <div class="av" style="background:rgba(108,99,255,0.2);color:var(--accent)">PV</div>
+          <div class="post-meta"><div class="post-name">Piet V.</div><div class="post-info">3h ago</div></div>
+          <span class="post-cat cat-meme">Meme</span>
+        </div>
+        <div class="post-body">Me trying to stay awake during the 8am lecture after a Wednesday night out 🥴</div>
+        <div class="post-actions"><div class="action"><span>😂</span> 88</div><div class="action"><span>💬</span> 12</div><div class="action"><span>🔗</span></div></div>
+      </div>
+      <div class="feed-post">
+        <div class="post-header">
+          <div class="av" style="background:rgba(67,233,123,0.2);color:var(--accent3)">NL</div>
+          <div class="post-meta"><div class="post-name">Nina L.</div><div class="post-info">5h ago</div></div>
+          <span class="post-cat cat-meme">Meme</span>
+        </div>
+        <div class="post-body">The parking situation near campus explained with one emoji: 🚗🙃</div>
+        <div class="post-actions"><div class="action liked"><span>😂</span> 156</div><div class="action"><span>💬</span> 29</div><div class="action"><span>🔗</span></div></div>
+      </div>`,
+
+    market: `
+      <div style="padding: 12px 16px 4px; font-size:0.75rem; color:var(--muted); font-weight:600; letter-spacing:1px; text-transform:uppercase;">Recent Listings</div>
+      <div class="market-grid">
+        <div class="market-item"><div class="market-img">📚</div><div class="market-info"><div class="market-title">Principles of Economics 8e</div><div class="market-price">€18</div><div class="market-seller">by Max R.</div></div></div>
+        <div class="market-item"><div class="market-img">💻</div><div class="market-info"><div class="market-title">Dell Laptop Charger 65W</div><div class="market-price">€12</div><div class="market-seller">by Lena H.</div></div></div>
+        <div class="market-item"><div class="market-img">🎧</div><div class="market-info"><div class="market-title">Sony WH-1000XM3</div><div class="market-price">€95</div><div class="market-seller">by Ruben K.</div></div></div>
+        <div class="market-item"><div class="market-img">🪑</div><div class="market-info"><div class="market-title">IKEA Desk Chair</div><div class="market-price">€30</div><div class="market-seller">by Ama B.</div></div></div>
+        <div class="market-item"><div class="market-img">🏠</div><div class="market-info"><div class="market-title">Room in student house</div><div class="market-price">€560/mo</div><div class="market-seller">by Floris V.</div></div></div>
+        <div class="market-item"><div class="market-img">🚲</div><div class="market-info"><div class="market-title">Dutch city bike</div><div class="market-price">€65</div><div class="market-seller">by Sara T.</div></div></div>
+      </div>`
+  };
+
+  function switchTab(tab) {
+    document.querySelectorAll('.app-tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('appContent').innerHTML = tabContent[tab];
+  }
+
+  // Load default
+  document.getElementById('appContent').innerHTML = tabContent.feed;
+
+  // ── Like counter animation ──
+  let likeVal = 142;
+  setInterval(() => {
+    likeVal++;
+    const el = document.getElementById('likeNum');
+    if (el) el.textContent = likeVal;
+  }, 2000);
+
+  // ── Feature scroll reveal ──
+  function initFeatureObserver() {
+    const items = document.querySelectorAll('.feature-item');
+    const obs = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) e.target.classList.add('revealed');
+      });
+    }, { threshold: 0.15 });
+    items.forEach(i => obs.observe(i));
+  }
+</script>
+</body>
+</html>
